@@ -1,5 +1,26 @@
-Roll Number,Name
-101,Alice
-102,Bob
-103,Charlie
-104,David
+Roll Number,Student Name
+CS001,Ishika Kumar
+CS002,Tanisha Nair
+CS003,Vihaan Kapoor
+CS004,Saanvi Patel
+CS005,Kiara Bose
+CS006,Rohan Bhat
+CS007,Rohan Gupta
+CS008,Jiya Yadav
+CS009,Rohan Nair
+CS010,Riya Kapoor
+CS011,Jiya Nair
+CS012,Aarav Chopra
+CS013,Ishaan Mishra
+CS014,Samar Bose
+CS015,Prisha Menon
+CS016,Aarav Iyer
+CS017,Jiya Malhotra
+CS018,Aadhya Dutta
+CS019,Aarav Malhotra
+CS020,Ananya Singh
+CS021,Ananya Reddy
+CS022,Kiara Kapoor
+CS023,Suhani Joshi
+CS024,Meera Nair
+CS025,Rohan Bose
