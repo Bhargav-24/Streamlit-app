@@ -9,11 +9,11 @@ FACULTY_CREDENTIALS = {"admin": "password123"}
 
 # 25 students with Indian names: roll number mapped to name
 students = {
-    "101": "Aarav", "102": "Aditi", "103": "Akhil", "104": "Anwesha", "105": "Arjun",
-    "106": "Bhargav", "107": "Chirag", "108": "Diya", "109": "Esha", "110": "Farhan",
-    "111": "Gaurav", "112": "Himani", "113": "Ishaan", "114": "Jahanvi", "115": "Kiran",
+    "101": "Aarav", "102": "Aditi", "103": "Akhil", "104": "Ananya", "105": "Arjun",
+    "106": "Bhavya", "107": "Chirag", "108": "Diya", "109": "Esha", "110": "Farhan",
+    "111": "Gaurav", "112": "Himani", "113": "Ishaan", "114": "Jhanvi", "115": "Kiran",
     "116": "Lavanya", "117": "Manav", "118": "Nidhi", "119": "Omkar", "120": "Pranav",
-    "121": "Rohith", "122": "Sakshi", "123": "Tanmay", "124": "Utkarsh", "125": "Vanya"
+    "121": "Riya", "122": "Sakshi", "123": "Tanmay", "124": "Utkarsh", "125": "Vanya"
 }
 
 DATA_FILE = "attendance.csv"
@@ -85,7 +85,7 @@ def attendance_page():
     # Add vertical spacing before the button
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Center the button using columns
+    # Center and enlarge the submit button with extra spacing
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Submit Attendance", key="submit_attendance_button", help="Click to submit attendance"):
@@ -187,7 +187,12 @@ if "logged_in" not in st.session_state:
 if not st.session_state["logged_in"]:
     faculty_login()
 else:
-    st.sidebar.markdown("<h1 style='text-align: center; color: #4CAF50;'>Dashboard</h1>", unsafe_allow_html=True)
+    st.sidebar.markdown(
+        "<h1 style='text-align: center; color: royalblue; margin-top: -10px;'>Dashboard</h1>",
+        unsafe_allow_html=True
+    )
+    st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+    
     page = st.sidebar.radio("Navigation", ["Take Attendance", "Today's Attendance", "View Report"], key="sidebar_nav")
     if page == "Take Attendance":
         attendance_page()
