@@ -1,33 +1,58 @@
 import streamlit as st
 
-# Set page config
-st.set_page_config(page_title="Hackathon Project", layout="wide", initial_sidebar_state="collapsed")
+# Set page config with wide layout and custom title
+st.set_page_config(page_title="Interactive Hackathon App", layout="wide")
 
-# Hide Streamlit branding
-hide_streamlit_style = """
+# Custom CSS for background and styling
+st.markdown(
+    """
     <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    body {
+        background-color: #f0f2f6;
+    }
+    .stApp {
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: white;
+        text-align: center;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    .stButton>button {
+        background-color: #ff4b4b;
+        color: white;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+    .stSlider {
+        color: white !important;
+    }
     </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+    """,
+    unsafe_allow_html=True
+)
 
-# Title and description
-st.title("Hackathon Project")
-st.write("Welcome to our Streamlit-based hackathon project!")
+# Main content
+st.title("🚀 Interactive Hackathon App")
+st.write("An engaging and colorful web app built with Streamlit!")
 
-# Sidebar
-st.sidebar.header("Navigation")
-st.sidebar.write("Use this panel to navigate.")
+# User name input
+name = st.text_input("Enter your name:", "")
 
-# Name input
-name = st.text_input("Enter your name:")
-
-# Display welcome message after input
 if name:
-    st.write(f"Welcome to our project, {name}!")
+    st.success(f"Welcome to our project, {name}! 🎉")
+
+# Slider for interactivity
+st.sidebar.header("🎨 Customize")
+color_intensity = st.sidebar.slider("Select intensity:", 0, 100, 50)
+
+# Button interaction
+if st.button("Click Me!"):
+    st.balloons()  # Fun effect
+
+# Show slider value
+st.write(f"Selected intensity: {color_intensity}")
 
 # Footer
-st.write("---")
-st.write("Made with Streamlit")
+st.markdown("---")
+st.markdown("Made with Streamlit")
