@@ -1,7 +1,17 @@
 import streamlit as st
 
 # Set page config
-st.set_page_config(page_title="Hackathon Project", layout="wide")
+st.set_page_config(page_title="Hackathon Project", layout="wide", initial_sidebar_state="collapsed")
+
+# Hide Streamlit branding
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Title and description
 st.title("Hackathon Project")
