@@ -6,17 +6,19 @@ import matplotlib.pyplot as plt
 # Dummy faculty credentials
 FACULTY_CREDENTIALS = {"admin": "password123"}
 
-# Dummy student list
+# Dummy student list: roll number mapped to name
 students = {"101": "Alice", "102": "Bob", "103": "Charlie", "104": "David"}
+
+DATA_FILE = "attendance.csv"
 
 def load_attendance():
     try:
-        return pd.read_csv("attendance.csv", index_col=[0])
+        return pd.read_csv(DATA_FILE, index_col=[0])
     except FileNotFoundError:
         return pd.DataFrame(columns=["Date", "Roll Number", "Name", "Status"])
 
 def save_attendance(attendance_df):
-    attendance_df.to_csv("attendance.csv")
+    attendance_df.to_csv(DATA_FILE)
 
 def faculty_login():
     st.title("Faculty Login")
@@ -25,84 +27,118 @@ def faculty_login():
     if st.button("Login"):
         if username in FACULTY_CREDENTIALS and FACULTY_CREDENTIALS[username] == password:
             st.session_state["logged_in"] = True
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Invalid username or password")
 
-def attendance_page():
-    st.title("Attendance Management")
+def initialize_attendance_state(date_str):
     attendance_df = load_attendance()
-    
-    # Date selection (no future dates)
+    if date_str in attendance_df["Date"].values:
+        existing = attendance_df[attendance_df["Date"] == date_str]
+        for roll in students.keys():
+            if roll in existing["Roll Number"].astype(str).values:
+                st.session_state[f"attendance_{roll}"] = existing[existing["Roll Number"].astype(str) == roll]["Status"].values[0]
+            else:
+                st.session_state[f"attendance_{roll}"] = "Unmarked"
+    else:
+        for roll in students.keys():
+            st.session_state[f"attendance_{roll}"] = "Unmarked"
+
+def attendance_page():
+    st.title("Take Attendance")
+    attendance_df = load_attendance()
+
     today = datetime.date.today()
     date = st.date_input("Select Date", today, min_value=datetime.date(2024, 1, 1), max_value=today)
-    
-    # Load previous attendance if available
-    if date in attendance_df["Date"].values:
-        existing_data = attendance_df[attendance_df["Date"] == str(date)]
-    else:
-        existing_data = pd.DataFrame(columns=["Roll Number", "Name", "Status"])
-    
-    st.subheader(f"Attendance for {date}")
-    attendance = {}
+    date_str = str(date)
+
+    if "last_date" not in st.session_state or st.session_state.get("last_date") != date_str:
+        initialize_attendance_state(date_str)
+        st.session_state["last_date"] = date_str
+
+    st.subheader(f"Attendance for {date_str}")
+
     for roll, name in students.items():
-        prev_status = existing_data[existing_data["Roll Number"] == roll]["Status"].values
-        default_status = prev_status[0] if len(prev_status) > 0 else "Absent"
-        attendance[roll] = st.selectbox(f"{roll} - {name}", ["Present", "Absent"], index=0 if default_status == "Present" else 1)
-    
+        col1, col2, col3 = st.columns([2,1,1])
+        with col1:
+            st.write(f"**{roll} - {name}**")
+            st.write(f"Current Status: **{st.session_state[f'attendance_{roll}']}**")
+        with col2:
+            if st.button("Mark Present", key=f"{roll}_present"):
+                st.session_state[f"attendance_{roll}"] = "Present"
+                st.rerun()
+        with col3:
+            if st.button("Mark Absent", key=f"{roll}_absent"):
+                st.session_state[f"attendance_{roll}"] = "Absent"
+                st.rerun()
+
     if st.button("Submit Attendance"):
-        # Remove existing entries for the selected date
-        attendance_df = attendance_df[attendance_df["Date"] != str(date)]
-        # Add new entries
-        new_data = pd.DataFrame({"Date": date, "Roll Number": list(attendance.keys()), "Name": list(students.values()), "Status": list(attendance.values())})
-        attendance_df = pd.concat([attendance_df, new_data], ignore_index=True)
+        attendance_df = attendance_df[attendance_df["Date"] != date_str]
+        new_records = []
+        for roll, name in students.items():
+            new_records.append({
+                "Date": date_str,
+                "Roll Number": roll,
+                "Name": name,
+                "Status": st.session_state[f"attendance_{roll}"]
+            })
+        new_df = pd.DataFrame(new_records)
+        attendance_df = pd.concat([attendance_df, new_df], ignore_index=True)
         save_attendance(attendance_df)
         st.success("Attendance submitted successfully!")
-        st.experimental_rerun()
+        st.rerun()
+
+def todays_attendance_page():
+    st.title("Today's Attendance")
+    attendance_df = load_attendance()
+    today_str = str(datetime.date.today())
+    today_data = attendance_df[attendance_df["Date"] == today_str].copy()
+    
+    if today_data.empty:
+        st.info("No attendance data for today.")
+    else:
+        # Ensure that Roll Number is string type in both DataFrames
+        today_data["Roll Number"] = today_data["Roll Number"].astype(str)
+        df = pd.DataFrame({"Roll Number": list(students.keys()), "Name": list(students.values())})
+        df["Roll Number"] = df["Roll Number"].astype(str)
+        df = df.merge(today_data[["Roll Number", "Status"]], on="Roll Number", how="left")
+        df["Status"] = df["Status"].fillna("Unmarked")
+        st.table(df)
 
 def attendance_report():
     st.title("Attendance Report")
     attendance_df = load_attendance()
-    
+
     if attendance_df.empty:
         st.warning("No attendance data available.")
         return
-    
+
     attendance_df["Date"] = pd.to_datetime(attendance_df["Date"])
+    summary = attendance_df.groupby("Date")["Status"].apply(lambda x: (x == "Present").sum())
     
-    # Attendance percentage calculation
-    total_days = attendance_df["Date"].nunique()
-    if total_days == 0:
-        st.warning("No sufficient data for analysis.")
-        return
-    
-    attendance_summary = attendance_df.groupby("Date")["Status"].apply(lambda x: (x == "Present").sum())
-    
-    st.subheader("Attendance Percentage")
-    attendance_percentage = (attendance_summary / len(students)) * 100
-    st.line_chart(attendance_percentage)
-    
-    # Graph of student attendance over days
-    fig, ax = plt.subplots()
-    ax.plot(attendance_summary.index, attendance_summary.values, marker='o', linestyle='-')
+    st.subheader("Daily Attendance Overview")
+    fig, ax = plt.subplots(figsize=(8,4))
+    ax.bar(summary.index, summary.values, color="skyblue")
     ax.set_xlabel("Date")
     ax.set_ylabel("Number of Students Present")
-    ax.set_title("Daily Attendance Trend")
+    ax.set_title("Daily Attendance")
     st.pyplot(fig)
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
+st.sidebar.markdown("<h1 style='text-align: center; color: #4CAF50;'>Dashboard</h1>", unsafe_allow_html=True)
+
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
 if not st.session_state["logged_in"]:
     faculty_login()
 else:
-    page = st.sidebar.radio("Go to", ["Take Attendance", "View Report", "Logout"])
+    page = st.sidebar.radio("Navigation", ["Take Attendance", "Today's Attendance", "View Report", "Logout"])
     if page == "Take Attendance":
         attendance_page()
+    elif page == "Today's Attendance":
+        todays_attendance_page()
     elif page == "View Report":
         attendance_report()
     elif page == "Logout":
         st.session_state["logged_in"] = False
-        st.experimental_rerun()
+        st.rerun()
