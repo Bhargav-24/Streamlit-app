@@ -7,17 +7,15 @@ import calendar
 # Dummy faculty credentials
 FACULTY_CREDENTIALS = {"admin": "password123"}
 
-# 25 students with Indian names: roll number mapped to name
 students = {
-    "101": "Aarav", "102": "Aditi", "103": "Akhil", "104": "Ananya", "105": "Arjun",
-    "106": "Bhavya", "107": "Chirag", "108": "Diya", "109": "Esha", "110": "Farhan",
-    "111": "Gaurav", "112": "Himani", "113": "Ishaan", "114": "Jhanvi", "115": "Kiran",
+    "101": "Aarav", "102": "Aditi", "103": "Akhil", "104": "Anwesha", "105": "Arjun",
+    "106": "Bhargav", "107": "Chirag", "108": "Diya", "109": "Esha", "110": "Farhan",
+    "111": "Gaurav", "112": "Himani", "113": "Ishaan", "114": "Jahanvi", "115": "Kiran",
     "116": "Lavanya", "117": "Manav", "118": "Nidhi", "119": "Omkar", "120": "Pranav",
-    "121": "Riya", "122": "Sakshi", "123": "Tanmay", "124": "Utkarsh", "125": "Vanya"
+    "121": "Rohith", "122": "Sakshi", "123": "Tanmay", "124": "Utkarsh", "125": "Vanya"
 }
 
 DATA_FILE = "attendance.csv"
-
 
 def load_attendance():
     try:
