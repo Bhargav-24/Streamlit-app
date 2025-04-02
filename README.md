@@ -1,2 +1,2 @@
-# Streamlit-app
-This is a website that runs on hopes and streamlit.
+# CODEATHON 2025
+Team name - we_hate_turboC
